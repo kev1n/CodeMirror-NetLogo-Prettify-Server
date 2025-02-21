@@ -1,6 +1,6 @@
 import { EditorView, KeyBinding, ViewUpdate } from '@codemirror/view';
 import { Diagnostic } from '@codemirror/lint';
-import { GalapagosEditor } from './editor';
+import { GalapagosEditor } from './editor.js';
 
 /** Options: Options of an editor. */
 export interface EditorConfig {

@@ -1,7 +1,7 @@
 import { WidgetType, EditorView, Decoration, DecorationSet, ViewPlugin, ViewUpdate } from '@codemirror/view';
 import { syntaxTree } from '@codemirror/language';
 import { Range } from '@codemirror/rangeset';
-import ColorPicker from '@netlogo/netlogo-color-picker';
+import { ColorPicker } from '@netlogo/netlogo-color-picker';
 import * as colors from '@netlogo/netlogo-color-picker/dist/helpers/colors';
 
 //savedColors for saving the saved colors of the color picker to be used for subsequent color picker creations

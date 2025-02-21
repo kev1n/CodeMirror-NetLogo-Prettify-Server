@@ -1,29 +1,87 @@
-## NetLogo Language Support for CodeMirror 6
+# NetLogo Code Prettifier API
 
-This repository contains work in progress by Ruth Bagley (@rbagley), Haylie Wu (@wubbalubbadu), and John Chen (@CIVITAS-John), aimed at providing NetLogo language support for CodeMirror 6.
+This is a REST API service that provides NetLogo code formatting capabilities. It uses the CodeMirror NetLogo extension to format NetLogo code according to standard formatting rules.
+
+## Getting Started
 
 ### Prerequisites
 
-To set up the environment, use `npm install`. You might also need to install `rollup` and `lezer-generator` globally by running the following commands:
+- Node.js (v14 or higher)
+- npm (v6 or higher)
 
+### Installation
+
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the server:
+   ```bash
+   npx tsx src/server.ts
+   ```
+
+The server will start on port 3000 by default. You can change this by setting the `PORT` environment variable.
+
+## API Usage
+
+### Format NetLogo Code
+
+**Endpoint:** `POST /prettify`
+
+**Request Body:**
+
+```json
+{
+  "code": "your NetLogo code here",
+  "lineWidth": 100 // optional, defaults to 100
+}
 ```
-npm install @lezer/generator --global
-npm install rollup --global
-npx husky init
+
+**Example Request:**
+
+```bash
+curl -X POST http://localhost:3000/prettify \
+  -H "Content-Type: application/json" \
+  -d '{
+    "code": "to setup clear-all create-turtles 10 [ setxy random-xcor random-ycor ] reset-ticks end",
+    "lineWidth": 80
+  }'
 ```
 
-### Building the Project
+**Example Response:**
 
-To build the project, run `npm run build` or `npm run release`. The second command creates an uglified and compressed bundle.
+```json
+{
+  "formatted": "to setup\n  clear-all\n  create-turtles 10 [\n    setxy random-xcor random-ycor\n  ]\n  reset-ticks\nend"
+}
+```
 
-### Commiting to the Repository
+### Error Responses
 
-After you finish your work, please first build and run the project; then, run `npm run precommit` for automatic check and prettifying.
+If there's an error, the API will return a JSON response with an error message:
 
-### Acknowledgment
+```json
+{
+  "error": "Error message here",
+  "details": "Detailed error information"
+}
+```
 
-This project is funded by Northwestern SESP Venture Research Fund.
+## Development
 
-### Contributing
+To build the project:
 
-Contributions to this project are welcome.
+```bash
+npm run build
+```
+
+To run tests:
+
+```bash
+npm test
+```
+
+## License
+
+This project is licensed under the GPL-2.0 License - see the LICENSE file for details.

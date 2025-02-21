@@ -8,29 +8,29 @@ import { html } from '@codemirror/lang-html';
 import { css } from '@codemirror/lang-css';
 import { javascript } from '@codemirror/lang-javascript';
 
-import { LocalizationManager } from './i18n/localized';
-import { Dictionary } from './i18n/dictionary';
-import { EditorConfig, EditorLanguage, ParseMode } from './editor-config';
-import { highlight } from './codemirror/style-highlight';
-import { updateExtension } from './codemirror/extension-update';
-import { stateExtension, StateNetLogo } from './codemirror/extension-state-netlogo';
-import { preprocessStateExtension, StatePreprocess } from './codemirror/extension-state-preprocess';
-import { buildToolTips } from './codemirror/extension-tooltip';
-import { lightTheme } from './codemirror/theme-light';
+import { LocalizationManager } from './i18n/localized.js';
+import { Dictionary } from './i18n/dictionary.js';
+import { EditorConfig, EditorLanguage, ParseMode } from './editor-config.js';
+import { highlight } from './codemirror/style-highlight.js';
+import { updateExtension } from './codemirror/extension-update.js';
+import { stateExtension, StateNetLogo } from './codemirror/extension-state-netlogo.js';
+import { preprocessStateExtension, StatePreprocess } from './codemirror/extension-state-preprocess.js';
+import { buildToolTips } from './codemirror/extension-tooltip.js';
+import { lightTheme } from './codemirror/theme-light.js';
 
 import { NetLogo } from './lang/netlogo.js';
-import { netlogoLinters } from './lang/linters/linters';
-import { buildLinter } from './lang/linters/linter-builder';
-import { CompilerLinter, RuntimeError, RuntimeLinter } from './lang/linters/runtime-linter';
-import { PreprocessContext, LintContext } from './lang/classes/contexts';
+import { netlogoLinters } from './lang/linters/linters.js';
+import { buildLinter } from './lang/linters/linter-builder.js';
+import { CompilerLinter, RuntimeError, RuntimeLinter } from './lang/linters/runtime-linter.js';
+import { PreprocessContext, LintContext } from './lang/classes/contexts.js';
 
-import { EditingFeatures } from './features/editing';
-import { SelectionFeatures } from './features/selection';
-import { SemanticFeatures } from './features/semantics';
-import { CodeEditing } from './lang/services/code-editing';
+import { EditingFeatures } from './features/editing.js';
+import { SelectionFeatures } from './features/selection.js';
+import { SemanticFeatures } from './features/semantics.js';
+import { CodeEditing } from './lang/services/code-editing.js';
 import { basicSetup } from 'codemirror';
-import { Breed } from './lang/classes/structures';
-import { createColorPickerPlugin } from './codemirror/cp-widget-extension';
+import { Breed } from './lang/classes/structures.js';
+import { createColorPickerPlugin } from './codemirror/cp-widget-extension.js';
 
 export class GalapagosEditor {
   /** CodeMirror: The CodeMirror 6 component. */

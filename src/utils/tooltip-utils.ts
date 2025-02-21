@@ -1,7 +1,7 @@
-import { Breed } from '../lang/classes/structures';
+import { Breed } from '../lang/classes/structures.js';
 import { EditorState } from '@codemirror/state';
 import { syntaxTree } from '@codemirror/language';
-import { getCodeName } from '../lang/utils/code';
+import { getCodeName } from '../lang/utils/code.js';
 
 /** classifyPrimitive: Identify type of reporter/command for appropriate tooltip. */
 export const classifyPrimitive = function (name: string) {

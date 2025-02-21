@@ -1,0 +1,41 @@
+import { syntaxTree } from '@codemirror/language';
+import { getDiagnostic } from './linter-builder';
+import { getCodeName } from '../utils/code';
+import { AddReplaceAction } from '../utils/actions';
+// ReporterLinter: checks if all (and only) reporter procedures use 'report'
+export const ReporterLinter = (view, preprocessContext, lintContext) => {
+    const diagnostics = [];
+    syntaxTree(view.state)
+        .topNode?.firstChild?.getChildren('Procedure')
+        .map((proc) => {
+        let to_node = proc.node.getChild('To');
+        let is_reporter = getCodeName(view.state, to_node ?? proc.node) == 'to-report';
+        let found_report = false;
+        let reporter_node = null;
+        // console.log()
+        syntaxTree(view.state).iterate({
+            enter: (node) => {
+                if (node.name == 'Command1Args' && getCodeName(view.state, node.node) == 'report') {
+                    found_report = true;
+                    reporter_node = node.node;
+                }
+            },
+            from: proc.from,
+            to: proc.to,
+        });
+        if (is_reporter && !found_report && to_node) {
+            let diagnostic = getDiagnostic(view, to_node, 'Invalid to-report _', 'error', 'to-report');
+            AddReplaceAction(diagnostic, 'to');
+            diagnostics.push(diagnostic);
+        }
+        else if (!is_reporter && found_report && reporter_node && to_node) {
+            // console.log(reporter_node)
+            // console.log(getCodeName(view.state, to_node),is_reporter,found_report)
+            diagnostics.push(getDiagnostic(view, reporter_node, 'Invalid report _', 'error', 'report'));
+            let diagnostic = getDiagnostic(view, to_node, 'Invalid report warning _', 'warning', 'report');
+            AddReplaceAction(diagnostic, 'to-report');
+            diagnostics.push(diagnostic);
+        }
+    });
+    return diagnostics;
+};

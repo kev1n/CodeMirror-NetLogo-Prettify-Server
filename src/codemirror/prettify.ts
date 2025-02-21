@@ -1,9 +1,9 @@
 import { indentRange, syntaxTree } from '@codemirror/language';
 import { EditorView } from '@codemirror/view';
 import { IterMode, SyntaxNode, Tree } from '@lezer/common';
-import { GalapagosEditor } from 'src/editor';
-import { Log } from '../utils/debug-utils';
-import { getCodeName } from 'src/lang/utils/code';
+import { GalapagosEditor } from '../editor.js';
+import { Log } from '../utils/debug-utils.js';
+import { getCodeName } from '../lang/utils/code.js';
 
 /** prettify: Change selection to fit formatting standards. */
 export const prettify = function (view: EditorView, from: number | null = null, to: number | null = null) {
