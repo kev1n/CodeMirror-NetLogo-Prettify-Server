@@ -5,7 +5,7 @@ export var EditorLanguage;
     EditorLanguage[EditorLanguage["Javascript"] = 1] = "Javascript";
     EditorLanguage[EditorLanguage["HTML"] = 2] = "HTML";
     EditorLanguage[EditorLanguage["CSS"] = 3] = "CSS";
-})(EditorLanguage = EditorLanguage || (EditorLanguage = {}));
+})(EditorLanguage || (EditorLanguage = {}));
 /** ParseMode: The parsing mode. */
 export var ParseMode;
 (function (ParseMode) {
@@ -19,7 +19,7 @@ export var ParseMode;
     ParseMode["Reporter"] = "Reporter";
     /** Generative: Generative mode (ChatLogo), a special Normal mode that does not provide context to its parent but instead take it back. */
     ParseMode["Generative"] = "Generative";
-})(ParseMode = ParseMode || (ParseMode = {}));
+})(ParseMode || (ParseMode = {}));
 /** Export classes globally. */
 try {
     window.EditorLanguage = EditorLanguage;

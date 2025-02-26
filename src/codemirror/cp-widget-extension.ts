@@ -2,7 +2,7 @@ import { WidgetType, EditorView, Decoration, DecorationSet, ViewPlugin, ViewUpda
 import { syntaxTree } from '@codemirror/language';
 import { Range } from '@codemirror/rangeset';
 import { ColorPicker } from '@netlogo/netlogo-color-picker';
-import * as colors from '@netlogo/netlogo-color-picker/dist/helpers/colors';
+import * as colors from '@netlogo/netlogo-color-picker/dist/helpers/colors.js';
 
 //savedColors for saving the saved colors of the color picker to be used for subsequent color picker creations
 var savedColors: number[][] = [];

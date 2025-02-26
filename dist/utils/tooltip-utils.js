@@ -1,5 +1,5 @@
 import { syntaxTree } from '@codemirror/language';
-import { getCodeName } from '../lang/utils/code';
+import { getCodeName } from '../lang/utils/code.js';
 /** classifyPrimitive: Identify type of reporter/command for appropriate tooltip. */
 export const classifyPrimitive = function (name) {
     // classify all types of reporter as 'breed','custom', or builtin

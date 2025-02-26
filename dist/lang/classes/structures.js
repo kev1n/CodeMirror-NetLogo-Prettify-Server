@@ -24,7 +24,7 @@ export var NetLogoType;
     NetLogoType[NetLogoType["BooleanBlock"] = 19] = "BooleanBlock";
     NetLogoType[NetLogoType["Command"] = 20] = "Command";
     NetLogoType[NetLogoType["Other"] = 21] = "Other";
-})(NetLogoType = NetLogoType || (NetLogoType = {}));
+})(NetLogoType || (NetLogoType = {}));
 /** AgentContexts: Agent contexts of a primitive. */
 export class AgentContexts {
     /** Parse an agent-context string. */
@@ -66,7 +66,7 @@ export var BreedType;
     BreedType[BreedType["Patch"] = 1] = "Patch";
     BreedType[BreedType["UndirectedLink"] = 2] = "UndirectedLink";
     BreedType[BreedType["DirectedLink"] = 3] = "DirectedLink";
-})(BreedType = BreedType || (BreedType = {}));
+})(BreedType || (BreedType = {}));
 /** Procedure: Dynamic metadata of a procedure. */
 export class Procedure {
     constructor() {
