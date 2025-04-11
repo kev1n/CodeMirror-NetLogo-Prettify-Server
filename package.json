@@ -25,7 +25,7 @@
   "scripts": {
     "esbuild:server": "node build-server.js",
     "esbuild:start": "node dist/server.js",
-    "start": "node dist/server.js"
+    "start": "tsx src/server.ts"
   },
   "dependencies": {
     "@codemirror/commands": "^6.6.0",
