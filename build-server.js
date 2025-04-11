@@ -4,8 +4,9 @@ import { readFileSync } from 'fs';
 
 // Get dependencies from package.json to mark as external
 const pkg = JSON.parse(readFileSync('./package.json', 'utf8'));
-const external = Object.keys(pkg.dependencies || {});
+const external = Object.keys(pkg.dependencies || {}).filter((dep) => !dep.startsWith('@codemirror/'));
 
+console.log('external', external);
 // Build the server
 build({
   entryPoints: ['src/server.ts'],

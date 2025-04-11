@@ -73,73 +73,34 @@ document.createElement = function (tagName: string) {
 };
 
 // Mock Range and TextRange functionality
-globalAny.Range = class {
-  getBoundingClientRect() {
-    return {
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      width: 0,
-      height: 0,
-    };
-  }
+// These might still be needed if CodeMirror relies on specific DOM APIs not present in JSDOM
+// We can potentially remove these later if the bundling fixes the issue
 
-  getClientRects() {
-    return {
-      length: 1,
-      item: (i: number) => ({
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        width: 0,
-        height: 0,
-      }),
-      [0]: {
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        width: 0,
-        height: 0,
-      },
-      [Symbol.iterator]: function* () {
-        yield this[0];
-      },
-    };
-  }
-};
+// globalAny.Range = class {
+//   getBoundingClientRect() {
+//     return {
+//       top: 0,
+//       left: 0,
+//       right: 0,
+//       bottom: 0,
+//       width: 0,
+//       height: 0,
+//     };
+//   }
 
-// Mock Text object with getClientRects method
-globalAny.Text = class extends dom.window.Text {
-  getClientRects() {
-    return {
-      length: 1,
-      item: (i: number) => ({
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        width: 0,
-        height: 0,
-      }),
-      [0]: {
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        width: 0,
-        height: 0,
-      },
-      [Symbol.iterator]: function* () {
-        yield this[0];
-      },
-    };
-  }
-};
+//   getClientRects() {
+//     return createRectList(); // Use the helper function
+//   }
+// };
+
+// globalAny.Text = class extends dom.window.Text {
+//   getClientRects() {
+//     return createRectList();
+//   }
+// };
 
 // Ensure all elements have getClientRects method
+// Keep this for now, as it might be needed for JSDOM
 const originalGetElementById = document.getElementById;
 document.getElementById = function (id) {
   const element = originalGetElementById.call(this, id);
@@ -279,98 +240,67 @@ globalAny.EditorDictionary = {
 };
 
 // Define a standard getClientRects function
-const createRectList = () => ({
-  length: 1,
-  item: (i: number) => ({
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    width: 0,
-    height: 0,
-  }),
-  [0]: {
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    width: 0,
-    height: 0,
-  },
-  [Symbol.iterator]: function* () {
-    yield this[0];
-  },
-});
+// Keep this helper function
+// const createRectList = () => ({
+//   length: 1,
+//   item: (i: number) => ({
+//     top: 0,
+//     left: 0,
+//     right: 0,
+//     bottom: 0,
+//     width: 0,
+//     height: 0,
+//   }),
+//   [0]: {
+//     top: 0,
+//     left: 0,
+//     right: 0,
+//     bottom: 0,
+//     width: 0,
+//     height: 0,
+//   },
+//   [Symbol.iterator]: function* () {
+//     yield this[0];
+//   },
+// });
 
 // Explicitly handle the coordsAtPos error by monkey patching
 // This is a focused approach to handle the specific error in the stack trace
-globalAny.suppressPositioningErrors = () => {
-  // Store original methods if we need to restore them
-  const originals: Record<string, any> = {};
-
-  // Helper to safely patch a property on an object
-  const safePatch = (obj: any, propPath: string[], replacement: Function) => {
-    if (!obj) return false;
-
-    let target = obj;
-    for (let i = 0; i < propPath.length - 1; i++) {
-      if (!target[propPath[i]]) return false;
-      target = target[propPath[i]];
-    }
-
-    const propName = propPath[propPath.length - 1];
-    if (typeof target[propName] !== 'function') return false;
-
-    originals[propPath.join('.')] = target[propName];
-    target[propName] = replacement;
-    return true;
-  };
-
-  // Patch EditorView.coordsAtPos to avoid the error
-  safePatch(globalAny, ['EditorView', 'prototype', 'coordsAtPos'], function (this: any, pos: number) {
-    try {
-      // Try original function, but catch errors
-      return originals['EditorView.prototype.coordsAtPos'].call(this, pos);
-    } catch (e) {
-      // If it fails, return a dummy position
-      return { top: 0, bottom: 0, left: 0, right: 0 };
-    }
-  });
-};
+// Remove this section
+// globalAny.suppressPositioningErrors = () => {
+// ... removed suppressPositioningErrors function body ...
+// };
 
 // Apply getClientRects to Object.prototype to ensure EVERY object has it
-// This is extreme, but will guarantee that any object used by textRange has the method
-Object.defineProperty(Object.prototype, 'getClientRects', {
-  value: function () {
-    return createRectList();
-  },
-  configurable: true,
-  writable: true,
-  enumerable: false, // Don't show in for...in loops
-});
+// Remove this extreme patch
+// Object.defineProperty(Object.prototype, 'getClientRects', {
+//   value: function () {
+//     return createRectList();
+//   },
+//   configurable: true,
+//   writable: true,
+//   enumerable: false, // Don't show in for...in loops
+// });
 
 // More direct fix for the textRange function in CodeMirror
-try {
-  // Attempt to access the @codemirror/view module to directly patch problematic functions
-  const codeMirrorViewPath = require.resolve('@codemirror/view/dist/index.js');
-  if (codeMirrorViewPath) {
-    console.log(`Found CodeMirror view module at: ${codeMirrorViewPath}`);
-    // We'll just rely on our Object.prototype patch since this is a dynamic import
-  }
-} catch (err) {
-  console.log('CodeMirror view module not found for direct patching, using global approach instead');
-}
+// Remove this section
+// try {
+// ... removed try-catch block ...
+// } catch (err) {
+//   console.log('CodeMirror view module not found for direct patching, using global approach instead');
+// }
 
 // Apply the patch to Node.prototype to ensure all DOM nodes have this method
-if (dom.window.Node) {
-  Object.defineProperty(dom.window.Node.prototype, 'getClientRects', {
-    value: function () {
-      return createRectList();
-    },
-    configurable: true,
-    writable: true,
-  });
-}
+// Keep this for now, might be needed for JSDOM compatibility
+// if (dom.window.Node) {
+//   Object.defineProperty(dom.window.Node.prototype, 'getClientRects', {
+//     value: function () {
+//       return createRectList();
+//     },
+//     configurable: true,
+//     writable: true,
+//   });
+// }
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -410,113 +340,15 @@ app.post('/prettify', async (req: PrettifyRequest, res: Response): Promise<void>
     console.log('Editor element created and appended');
 
     // Ensure we're using the same CodeMirror state instance before initializing editor
-    await fixCodeMirrorStateInstance();
+    // REMOVE: await fixCodeMirrorStateInstance();
 
     // Monkey patch any CodeMirror functions that might be troublesome in server environment
-    try {
-      // Get access to the CodeMirror modules
-      const CM = globalAny.CM || {};
-
-      // Add compatibility check for ESM modules in the editor
-      const ensureESMCompatibility = () => {
-        console.log('Ensuring ESM compatibility for CodeMirror...');
-
-        // Fix for instanceof checks across module boundaries
-        try {
-          // For EditorState
-          if (CM.state && CM.state.EditorState) {
-            const originalEditorState = globalAny.EditorState || {};
-            globalAny.EditorState = CM.state.EditorState;
-
-            // Copy over any properties from the original
-            for (const key in originalEditorState) {
-              if (!(key in globalAny.EditorState) && Object.prototype.hasOwnProperty.call(originalEditorState, key)) {
-                globalAny.EditorState[key] = originalEditorState[key];
-              }
-            }
-          }
-
-          // For EditorView
-          if (CM.view && CM.view.EditorView) {
-            const originalEditorView = globalAny.EditorView || {};
-            globalAny.EditorView = CM.view.EditorView;
-
-            // Copy over any properties from the original
-            for (const key in originalEditorView) {
-              if (!(key in globalAny.EditorView) && Object.prototype.hasOwnProperty.call(originalEditorView, key)) {
-                globalAny.EditorView[key] = originalEditorView[key];
-              }
-            }
-          }
-
-          console.log('ESM compatibility fixes applied for CodeMirror');
-        } catch (err) {
-          console.warn('Could not apply all ESM compatibility fixes:', err);
-        }
-      };
-
-      // Apply ESM compatibility fixes
-      ensureESMCompatibility();
-
-      // Monkey patch the GalapagosEditor initialization to use our cached modules
-      if ('GalapagosEditor' in globalThis && globalAny.CM) {
-        // For ES modules, we can't just replace the constructor as easily
-        // Instead, we need to patch methods that actually create CodeMirror instances
-
-        // Find the editor instance
-        const editorInstance = new GalapagosEditor(editorElement, {
-          Language: EditorLanguage.NetLogo,
-          ParseMode: ParseMode.Normal,
-          OnUpdate: (Changed, Update) => {
-            if (Changed) console.log('Editor Update:', Update);
-          },
-          OnExplain: (Message, Context) => {
-            console.log('Editor Explain:', Message, Context);
-          },
-        });
-
-        // Now directly patch any methods that might cause issues
-        if (editorInstance) {
-          console.log('Editor instance created, patching potential problematic methods');
-
-          // Override methods that might use EditorState or EditorView
-          if (CM.state && CM.state.EditorState) {
-            // Inject our cached EditorState into the global scope
-            globalAny.EditorState = CM.state.EditorState;
-            console.log('Injected cached EditorState into global scope');
-          }
-
-          if (CM.view && CM.view.EditorView) {
-            // Inject our cached EditorView into the global scope
-            globalAny.EditorView = CM.view.EditorView;
-            console.log('Injected cached EditorView into global scope');
-          }
-        }
-      }
-
-      // Override the problematic functions to avoid the error
-      globalAny.preventPositioningErrors = () => {
-        // Override any functions that might cause errors due to lack of proper DOM support
-        if (typeof globalAny.textRange === 'function') {
-          const originalTextRange = globalAny.textRange;
-          globalAny.textRange = function (...args: any[]) {
-            const result = originalTextRange.apply(this, args);
-            if (result && !result.getClientRects) {
-              result.getClientRects = () => createRectList();
-            }
-            return result;
-          };
-        }
-      };
-
-      // Call the prevention function
-      globalAny.preventPositioningErrors();
-
-      // Also call our suppression function to catch any errors
-      globalAny.suppressPositioningErrors();
-    } catch (err) {
-      console.log('Could not patch CodeMirror functions directly, relying on global prototype methods');
-    }
+    // REMOVE: Entire try...catch block for patching CM functions
+    // try {
+    // ... removed try...catch block ...
+    // } catch (err) {
+    //   console.log('Could not patch CodeMirror functions directly, relying on global prototype methods');
+    // }
 
     console.log('Initializing GalapagosEditor...');
     // Create editor instance
@@ -588,141 +420,20 @@ app.get('/', (req: Request, res: Response): void => {
 });
 
 // Fix for CodeMirror extension issue - ensure single state instance
-// This needs to be called before creating any CodeMirror editors
-const fixCodeMirrorStateInstance = async () => {
-  // Store references to the CodeMirror modules to ensure we use the same instances
-  if (!globalAny.CM) {
-    globalAny.CM = {};
-  }
-
-  try {
-    // Check and log module paths to detect potential duplicates
-    console.log('Checking for multiple CodeMirror instances...');
-    try {
-      // Use import.meta.resolve if available, otherwise fallback
-      let stateModulePath, viewModulePath;
-
-      if (import.meta && typeof import.meta.resolve === 'function') {
-        stateModulePath = await import.meta.resolve('@codemirror/state');
-        viewModulePath = await import.meta.resolve('@codemirror/view');
-      } else {
-        // Fallback - just use the module name
-        stateModulePath = '@codemirror/state';
-        viewModulePath = '@codemirror/view';
-        console.log('import.meta.resolve not available, using module names');
-      }
-
-      console.log('CodeMirror state module path:', stateModulePath);
-      console.log('CodeMirror view module path:', viewModulePath);
-
-      // Only try to get node_modules directory if we have a proper path
-      if (typeof stateModulePath === 'string' && stateModulePath.includes('node_modules')) {
-        const nodeModulesDir = stateModulePath.substring(
-          0,
-          stateModulePath.indexOf('node_modules') + 'node_modules'.length
-        );
-        console.log('node_modules directory:', nodeModulesDir);
-      }
-    } catch (err) {
-      console.warn('Unable to check for duplicate CodeMirror instances:', err);
-    }
-
-    // Try to load the state module and cache it using dynamic import
-    const stateModule = await import('@codemirror/state');
-    globalAny.CM.state = stateModule;
-
-    // Cache other CodeMirror modules to ensure we use same instances
-    try {
-      globalAny.CM.view = await import('@codemirror/view');
-      globalAny.CM.language = await import('@codemirror/language');
-      globalAny.CM.commands = await import('@codemirror/commands');
-      console.log('Cached CodeMirror modules to prevent multiple instances');
-    } catch (err) {
-      console.warn('Could not cache all CodeMirror modules:', err);
-    }
-
-    // Store original instanceof to ensure proper type checking
-    const originalInstanceOf = Object.getOwnPropertyDescriptor(Object, 'instanceof');
-
-    // Override instanceof for Extension check
-    if (stateModule && 'Extension' in stateModule) {
-      const ExtensionClass = (stateModule as any).Extension;
-      Object.defineProperty(global, 'Extension', { value: ExtensionClass });
-
-      // Custom instanceof for Extension objects
-      const extensionInstanceCheck = function (this: any, obj: any, constructor: any) {
-        if (constructor === ExtensionClass || constructor.name === 'Extension') {
-          return obj && (obj instanceof ExtensionClass || obj.constructor?.name === 'Extension');
-        }
-        return originalInstanceOf
-          ? originalInstanceOf.value.call(this, obj, constructor)
-          : Object.prototype.hasOwnProperty.call(obj, 'constructor') && obj.constructor === constructor;
-      };
-
-      // Apply the patched instanceof behavior
-      Object.defineProperty(Object, 'instanceof', {
-        value: extensionInstanceCheck,
-        configurable: true,
-        writable: true,
-      });
-
-      // Directly patch the Configuration.resolve method if possible
-      try {
-        const Configuration = (stateModule as any).Configuration;
-        if (Configuration && Configuration.prototype && Configuration.prototype.resolve) {
-          const originalResolve = Configuration.prototype.resolve;
-
-          Configuration.prototype.resolve = function (extensions: any) {
-            try {
-              return originalResolve.call(this, extensions);
-            } catch (e: unknown) {
-              if (
-                typeof e === 'object' &&
-                e !== null &&
-                'message' in e &&
-                typeof e.message === 'string' &&
-                e.message.includes('Unrecognized extension value')
-              ) {
-                console.warn('Fixing unrecognized extension error');
-                // Handle the extension instance checking error
-                if (Array.isArray(extensions)) {
-                  // Filter out problematic extensions
-                  extensions = extensions.filter((ext) => {
-                    const isValidExt =
-                      ext &&
-                      (typeof ext === 'function' ||
-                        (typeof ext === 'object' && (ext.extension !== undefined || typeof ext.value === 'function')));
-                    if (!isValidExt) console.warn('Filtering out invalid extension:', ext);
-                    return isValidExt;
-                  });
-                }
-                return originalResolve.call(this, extensions);
-              }
-              throw e;
-            }
-          };
-          console.log('Patched Configuration.resolve to handle extension errors');
-        }
-      } catch (err) {
-        console.error('Failed to patch Configuration.resolve:', err);
-      }
-    }
-
-    console.log('CodeMirror state module cached and Extension instance check patched');
-  } catch (err) {
-    console.error('Failed to fix CodeMirror state instance issue:', err);
-  }
-};
+// REMOVE: Entire fixCodeMirrorStateInstance function definition
+// const fixCodeMirrorStateInstance = async () => {
+// ... removed function body ...
+// };
 
 // Call the fix before any server routes handle CodeMirror operations
-// Since this is now async, we'll use an IIFE to await it
-(async () => {
-  try {
-    await fixCodeMirrorStateInstance();
-  } catch (err) {
-    console.error('Error during fixCodeMirrorStateInstance initialization:', err);
-  }
-})();
+// REMOVE: IIFE calling fixCodeMirrorStateInstance
+// (async () => {
+//   try {
+//     await fixCodeMirrorStateInstance();
+//   } catch (err) {
+//     console.error('Error during fixCodeMirrorStateInstance initialization:', err);
+//   }
+// })();
 
 // Start the server
 app.listen(port, () => {
